@@ -1,0 +1,53 @@
+---
+title: "Codebook"
+author: "Shannon B"
+date: "12/14/2021"
+output: html_document
+---
+
+The `run_analysis.R` script contains the steps taken to import, clean, and produce the desired output data for the course project. 
+
+#### Code book
+
+There are 86 variables in the final dataset. The values of the variables in columns 3 through 86 all have the same units, which is seconds. These variables are time and frequency measurements collected from a wearable fitness device (the Samsung Galaxy 3 Smartphone).
+
+The first two variables are `subject`, in which the values are the subject's ID, and `activity`, which the values are self-explanatory.
+
+The remaining variable names are descriptive of their values.
+
+#### Study Design
+
+To arrive at the final dataset for this project, our first step was to merge two separate datasets. Here's how we did that:
+
+- `X` (10,299 rows, 561 cols) contains all of the measurement data and was created by merging `xTest` and `xTrain` using the `rbind()` function, essentially 'stacking' these two datasets according to common column names
+- `Y` (10,299 rows, 1 col) contains all of the activity codes and was created by merging `yTest` and `yTrain` using the `rbind()` function
+- `subjectID` (10,299 rows, 1 col) was created by merging `subjectTest` with `subjectTrain` using `rbind()`
+- `mergedData` (10,299 rows, 563 cols) was created by merging `X`, `Y`, and `subjectID` using the `cbind()` function, which joins these datasets horizontally, essentially adding columns based on matching rows.
+
+We then extracted only the measurements associated with the mean or standard deviation from each measurement.
+
+- `imp_data`(10,299 rows, 88 cols) was created by subsetting `mergedData` to select only the columns `subject`, `code`, and those that contain the word 'mean' or 'std'
+
+Next, the instructions want us to use descriptive activity names for all of the activities in the dataset (instead of a code)
+
+- All of the numbers in the `code` column of `imp_data` were replaced with the associated activity name from the second column of the `activity` table
+
+The next step was to appropriately label the dataset with descriptive variable names
+
+- the `code` column in `imp_data` was renamed `activity`
+- all columns that contained the word `Acc` were replaced by `Accelerometer`
+- `tBody` was replaced with `TimeBody`
+- `-mean()` was replaced with `Mean`
+- `-std()` was replaced with `STD`
+- `Gyro` was replaced with `Gyroscope`
+- `Mag` was replaced with `Magnitude`
+- `^t` was replaced with `Time`
+- `^f` was replaced with `Frequency`
+- `BodyBody` was replaced with `Body`
+- `-freq()` was replaced with `Frequency`
+- `angle` was replaced with `Angle`
+- `gravity` was replaced with `Gravity`
+
+For the final step, we're instructed to create a separate, independent tidy data set from the one created in the previous step. This final data set will have the average of each variable for each activity and each subject...is anyone else thinking `group_by()` and `summarize()`?
+
+- `final_data` (180 rows, 86 cols) is created by using `group_by()` and `summarize()` on `imp_data` to find the means of all the activity values, after grouping by subject and activity
